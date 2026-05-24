@@ -16,6 +16,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // =========================
 // 서버 설정
 // =========================
+app.get("/", (req, res) => {
+  res.send("OK");
+});
+
 const PORT = process.env.PORT || 4000;
 
 app.use((req, res, next) => {
@@ -321,6 +325,6 @@ app.get('/api/review', (req, res) => {
 // =========================
 // 서버 실행
 // =========================
-app.listen(PORT, () => {
-  console.log(`SERVER START : http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`SERVER START : ${PORT}`);
 });
