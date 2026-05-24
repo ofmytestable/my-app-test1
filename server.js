@@ -24,7 +24,7 @@ app.get("/health", (req, res) => {
   res.status(200).send("healthy");
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 
 app.use((req, res, next) => {
   res.setTimeout(120000); // 2분
