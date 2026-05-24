@@ -20,6 +20,10 @@ app.get("/", (req, res) => {
   res.send("OK");
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).send("healthy");
+});
+
 const PORT = process.env.PORT || 4000;
 
 app.use((req, res, next) => {
@@ -164,6 +168,8 @@ app.get('/search', async (req, res) => {
       headless: true,
       args: [
 
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
         '--disable-extensions',
@@ -174,7 +180,6 @@ app.get('/search', async (req, res) => {
         '--no-first-run',
         '--disable-application-cache',
         '--disk-cache-size=0',
-  
       ]
     });
 
