@@ -164,15 +164,23 @@ app.get('/search', async (req, res) => {
 
   try {
 
-    browser = await puppeteer.launch({
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+    browser = await chromium.launch({
+      headless: true,
       args: [
+
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
-      ],
-      headless: true,
+        '--disable-extensions',
+        '--disable-background-networking',
+        '--disable-sync',
+        '--disable-default-apps',
+        '--mute-audio',
+        '--no-first-run',
+        '--disable-application-cache',
+        '--disk-cache-size=0',
+      ]
     });
 
     page = await browser.newPage();
