@@ -1,0 +1,57 @@
+body {
+  margin: 0;
+  padding: 40px;
+  background: #f5f5f5;
+  font-family: sans-serif;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+h1 {
+  margin-bottom: 30px;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input {
+  flex: 1;
+  padding: 14px;
+  font-size: 16px;
+}
+
+button {
+  padding: 14px 24px;
+  border: none;
+  background: #03c75a;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.loading {
+  margin: 20px 0;
+  font-size: 18px;
+}
+
+.hidden {
+  display: none;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.review {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
