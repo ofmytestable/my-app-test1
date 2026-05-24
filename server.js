@@ -18,6 +18,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 // =========================
 const PORT = process.env.PORT || 4000;
 
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`SERVER START : ${PORT}`);
+});
+
+const PORT = process.env.PORT || 4000;
+
 app.use((req, res, next) => {
   res.setTimeout(120000); // 2분
   next();
@@ -321,6 +327,6 @@ app.get('/api/review', (req, res) => {
 // =========================
 // 서버 실행
 // =========================
-app.listen(PORT, () => {
-  console.log(`SERVER START : http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`SERVER START : ${PORT}`);
 });
