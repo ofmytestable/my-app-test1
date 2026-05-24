@@ -142,10 +142,29 @@ function extractPlaces(obj, places, visitedPlace) {
   }
 }
 
+
+//================
+//cloudetype test
+//=================
+
+app.get('/search', async (req, res) => {
+  res.json({
+    success: true,
+    message: 'test ok'
+  });
+});
+
+
+
+
+
+
+
+
 // =========================
 // 검색 API
 // =========================
-app.get('/search', async (req, res) => {
+/*app.get('/search', async (req, res) => {
 
   const keyword = req.query.keyword;
 
@@ -313,7 +332,7 @@ app.get('/search', async (req, res) => {
 
   }
 
-});
+});*/
 
 // =========================
 // 최근 결과 조회 API
