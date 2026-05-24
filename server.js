@@ -22,6 +22,12 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`SERVER START : ${PORT}`);
+});
+
+const PORT = process.env.PORT || 4000;
+
 app.use((req, res, next) => {
   res.setTimeout(120000); // 2분
   next();
