@@ -14,4 +14,4 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/app/playwright
 # chromium 설치
 RUN npx playwright install chromium
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
