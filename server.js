@@ -234,8 +234,10 @@ app.get('/search', async (req, res) => {
     // =========================
     // 검색 페이지 접속
     // =========================
-    await page.goto(searchUrl);
-
+    await page.goto(searchUrl, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
     await page.waitForSelector('body');
 
     // API 응답 수집 대기
