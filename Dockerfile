@@ -1,14 +1,17 @@
-FROM mcr.microsoft.com/playwright:v1.60.0-jammy
-
-USER root
+# Playwright 공식 이미지 사용 (시스템 라이브러리 모두 포함)
+FROM mcr.microsoft.com/playwright:v1.60.0-noble
 
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
+
+# Playwright 브라우저 설치 (이미지 안에 이미 라이브러리가 있으므로 성공)
+RUN npx playwright install chromium
 
 COPY . .
 
-ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-
 EXPOSE 3000
-CMD ["node", "server.js"]
+
+CMD ["npm", "start"]
+
