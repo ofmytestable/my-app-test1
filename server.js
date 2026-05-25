@@ -238,10 +238,14 @@ app.get('/search', async (req, res) => {
       waitUntil: "domcontentloaded",
       timeout: 60000,
     });
+<<<<<<< HEAD
     await page.locator('body').waitFor({
       state: 'attached',
       timeout: 60000,
     });
+=======
+    await page.waitForSelector('body');
+>>>>>>> c3e9225
 
     // API 응답 수집 대기
     await page.waitForTimeout(7000);
