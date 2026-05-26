@@ -14,14 +14,14 @@ const PORT = process.env.PORT || 3000;
 // =========================
 // 작업 상태 저장소
 // =========================
-const jobs = {}; // { jobId: { status, data, error } }
+const jobs = {};
 
 function createJobId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 
 // =========================
-// 공통 함수 (기존과 동일)
+// 공통 함수 (원본 그대로)
 // =========================
 async function getHtml(url) {
   const response = await axios.get(url);
@@ -33,8 +33,10 @@ function cleanReviewText(text) {
   const blockedWords = ['팔로우', '펼쳐보기', '반응 남기기'];
   const blockedPatterns = [
     text.includes('리뷰') && text.includes('사진'),
-    text.includes('1명'), text.includes('2명'),
-    text.includes('3명'), text.includes('4명')
+    text.includes('1명'),
+    text.includes('2명'),
+    text.includes('3명'),
+    text.includes('4명')
   ];
   if (blockedWords.some(word => text.includes(word))) return false;
   if (blockedPatterns.some(Boolean)) return false;
@@ -42,7 +44,8 @@ function cleanReviewText(text) {
 }
 
 async function getReviews(placeId) {
-  const reviewUrl = `https://pcmap.place.naver.com/restaurant/${placeId}/review/visitor`;
+  const reviewUrl =
+    `https://pcmap.place.naver.com/restaurant/${placeId}/review/visitor`;
   const html = await getHtml(reviewUrl);
   const $ = cheerio.load(html);
   const reviews = [];
@@ -73,10 +76,13 @@ function extractPlaces(obj, places, visitedPlace) {
 }
 
 // =========================
-// 핵심: 백그라운드 크롤링 함수
+// 백그라운드 크롤링 함수
+// ★ 원본과 구조 동일, 타이밍 문제만 수정
 // =========================
 async function runCrawl(jobId, keyword) {
-  const searchUrl = `https://map.naver.com/p/search/${encodeURIComponent(keyword)}?c=15.00,0,0,0,dh`;
+  const searchUrl =
+    `https://map.naver.com/p/search/${encodeURIComponent(keyword)}?c=15.00,0,0,0,dh`;
+
   let browser;
   let page;
 
@@ -105,49 +111,81 @@ async function runCrawl(jobId, keyword) {
     const places = [];
     const visitedPlace = new Set();
 
-    // ✅ 응답을 버퍼에 모아서 나중에 처리 (await 블로킹 제거)
-    const responseBuffer = [];
-
-    page.on('response', (response) => {
+    // ★ 핵심 수정: Promise 버퍼 방식 → 원본처럼 직접 await 방식으로 복원
+    //   단, 이벤트 핸들러 내부 에러가 조용히 삼켜지지 않도록 try/catch 추가
+    page.on('response', async (response) => {
       try {
         const url = response.url();
         const contentType = response.headers()['content-type'] || '';
         const isJson = contentType.includes('application/json');
-        const isSearchApi = url.includes('/search') || url.includes('/graphql') || url.includes('/list');
+        const isSearchApi =
+          url.includes('/search') ||
+          url.includes('/graphql') ||
+          url.includes('/list');
+
         if (!isJson || !isSearchApi) return;
 
-        // ✅ await 없이 Promise만 저장
-        responseBuffer.push(
-          response.json().then(json => {
-            extractPlaces(json, places, visitedPlace);
-          }).catch(() => {})
-        );
-      } catch {}
+        let json;
+        try {
+          json = await response.json();
+        } catch {
+          return;
+        }
+
+        extractPlaces(json, places, visitedPlace);
+
+      } catch (error) {
+        console.log('[response handler error]', error.message);
+      }
     });
 
-    await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await page.waitForTimeout(7000);
+    // ★ 핵심 수정: goto 옵션을 원본과 동일하게 복원
+    //   networkidle 대신 domcontentloaded + 충분한 대기시간 유지
+    await page.goto(searchUrl, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000,
+    });
 
-    // ✅ 버퍼에 쌓인 응답 파싱 완료까지 대기
-    await Promise.allSettled(responseBuffer);
+    await page.locator('body').waitFor({
+      state: 'attached',
+      timeout: 60000,
+    });
 
-    // 리뷰 수집
+    // ★ 핵심 수정: 대기 시간을 7초 → 10초로 늘려서
+    //   응답 이벤트가 모두 처리될 시간 확보
+    await page.waitForTimeout(10000);
+
+    // =========================
+    // 리뷰 수집 (원본 그대로)
+    // =========================
     const allReviews = [];
+
     for (const place of places) {
-      console.log(`\n업체: ${place.name}`);
+      console.log('\n====================');
+      console.log(`업체: ${place.name}`);
+      console.log('====================');
+
       try {
         const reviews = await getReviews(place.placeId);
-        allReviews.push({ placeId: place.placeId, name: place.name, reviewCount: reviews.length, reviews });
+        allReviews.push({
+          placeId: place.placeId,
+          name: place.name,
+          reviewCount: reviews.length,
+          reviews
+        });
         console.log(reviews);
-      } catch {
+      } catch (error) {
         console.log(`${place.name} 리뷰 수집 실패`);
       }
     }
 
-    // ✅ 결과 저장
     jobs[jobId] = {
       status: 'done',
-      data: { keyword, placeCount: places.length, result: allReviews }
+      data: {
+        keyword,
+        placeCount: places.length,
+        result: allReviews
+      }
     };
 
     console.log(`[JOB ${jobId}] 완료 - ${places.length}개 업체`);
@@ -157,7 +195,6 @@ async function runCrawl(jobId, keyword) {
     jobs[jobId] = { status: 'error', error: error.message };
 
   } finally {
-    // ✅ 반드시 정리
     try { if (page && !page.isClosed()) await page.close(); } catch {}
     try { if (browser) await browser.close(); } catch {}
   }
@@ -175,10 +212,8 @@ app.get('/search', (req, res) => {
   const jobId = createJobId();
   jobs[jobId] = { status: 'pending' };
 
-  // ✅ await 없이 백그라운드 실행
-  runCrawl(jobId, keyword);
+  runCrawl(jobId, keyword); // await 없이 백그라운드 실행
 
-  // ✅ 즉시 응답 (타임아웃 없음)
   res.json({ success: true, jobId });
 });
 
@@ -187,16 +222,10 @@ app.get('/search', (req, res) => {
 // =========================
 app.get('/api/review/:jobId', (req, res) => {
   const job = jobs[req.params.jobId];
-  if (!job) return res.status(404).json({ success: false, message: '존재하지 않는 작업입니다.' });
+  if (!job) {
+    return res.status(404).json({ success: false, message: '존재하지 않는 작업입니다.' });
+  }
   res.json({ success: true, ...job });
-});
-
-// 기존 호환용 (마지막 결과 조회)
-app.get('/api/review', (req, res) => {
-  const jobIds = Object.keys(jobs);
-  if (!jobIds.length) return res.json({ success: true, status: 'idle', data: null });
-  const lastJob = jobs[jobIds[jobIds.length - 1]];
-  res.json({ success: true, ...lastJob });
 });
 
 app.get('/health', (req, res) => res.status(200).send('healthy'));
