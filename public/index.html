@@ -1,32 +1,69 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<script src="https://plugin.factchat.bot/latest/plugin.min.js">
-</script>
-<script>
-  window.ChatWidgetConfig = {
-    chatUrl:
-      "https://sgllm.sogang.ac.kr/public/chatbots/condescending-goldstine-jbe",
-    position: { bottom: 20, left: 20 },
-    buttonColor: "#1751D0",
-    title: "Chat with us",
-  };
-</script>
-<script src="https://plugin.factchat.bot/latest/plugin.min.js">
-</script>
-<script>
-  window.ChatWidgetConfig = {
-    chatUrl:
-      "https://sgllm.sogang.ac.kr/public/chatbots/agitated-bhaskara-ucc",
-    position: { bottom: 20, right: 20 },
-    buttonColor: "#1751D0",
-    title: "Chat with us",
-  };
-</script>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>네이버 리뷰 수집기</title>
+
+ <style>
+    .chat-widget {
+      position: fixed;
+      bottom: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    .chat-widget.left { left: 24px; align-items: flex-start; }
+    .chat-widget.right { right: 24px; align-items: flex-end; }
+
+    .chat-iframe {
+      width: 370px;
+      height: 520px;
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      display: none;
+      background: #fff;
+    }
+
+    .chat-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 22px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      background: #1751D0;
+      box-shadow: 0 4px 16px rgba(23,81,208,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+    }
+    .chat-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(23,81,208,0.4);
+    }
+    .chat-btn:active { transform: scale(0.97); }
+    .chat-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .close-btn {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #888;
+      font-size: 22px;
+      line-height: 1;
+      padding: 4px 8px;
+      margin-bottom: -4px;
+    }
+    .close-btn:hover { color: #333; }
+  </style>
 
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -56,7 +93,56 @@
 
   </div>
 
-  <script src="app.js"></script>
+<script src="app.js"></script>
+
+<!-- 챗봇 1 — 왼쪽 하단 -->
+  <div class="chat-widget left" id="widget1">
+    <button class="close-btn" id="close-btn-1" style="display:none;"
+      onclick="closeChat('chat-frame-1')">✕</button>
+    <iframe id="chat-frame-1" class="chat-iframe"
+      src="https://sgllm.sogang.ac.kr/public/chatbots/condescending-goldstine-jbe"
+      allow="microphone"></iframe>
+    <button class="chat-btn" onclick="toggleChat('chat-frame-1', 'close-btn-1')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      챗봇 1
+    </button>
+  </div>
+
+  <!-- 챗봇 2 — 오른쪽 하단 -->
+  <div class="chat-widget right" id="widget2">
+    <button class="close-btn" id="close-btn-2" style="display:none;"
+      onclick="closeChat('chat-frame-2')">✕</button>
+    <iframe id="chat-frame-2" class="chat-iframe"
+      src="https://sgllm.sogang.ac.kr/public/chatbots/agitated-bhaskara-ucc"
+      allow="microphone"></iframe>
+    <button class="chat-btn" onclick="toggleChat('chat-frame-2', 'close-btn-2')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      챗봇 2
+    </button>
+  </div>
+
+  <script>
+    function toggleChat(frameId, closeBtnId) {
+      const frame = document.getElementById(frameId);
+      const closeBtn = document.getElementById(closeBtnId);
+      const isOpen = frame.style.display === 'block';
+      frame.style.display = isOpen ? 'none' : 'block';
+      closeBtn.style.display = isOpen ? 'none' : 'block';
+    }
+
+    function closeChat(frameId) {
+      const closeBtnId = frameId === 'chat-frame-1' ? 'close-btn-1' : 'close-btn-2';
+      document.getElementById(frameId).style.display = 'none';
+      document.getElementById(closeBtnId).style.display = 'none';
+    }
+  </script>
+
+
+ 
 
 </body>
 </html>
