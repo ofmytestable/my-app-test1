@@ -3,102 +3,60 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>네이버 리뷰 수집기</title>
-
- <style>
-    .chat-widget {
-      position: fixed;
-      bottom: 24px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 10px;
-    }
-    .chat-widget.left { left: 24px; align-items: flex-start; }
-    .chat-widget.right { right: 24px; align-items: flex-end; }
-
-    .chat-iframe {
-      width: 370px;
-      height: 520px;
-      border: none;
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-      display: none;
-      background: #fff;
-    }
-
-    .chat-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 22px;
-      border-radius: 50px;
-      border: none;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      color: #fff;
-      background: #1751D0;
-      box-shadow: 0 4px 16px rgba(23,81,208,0.35);
-      transition: transform 0.15s, box-shadow 0.15s;
-      white-space: nowrap;
-    }
-    .chat-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(23,81,208,0.4);
-    }
-    .chat-btn:active { transform: scale(0.97); }
-    .chat-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
-
-    .close-btn {
-      align-self: flex-end;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #888;
-      font-size: 22px;
-      line-height: 1;
-      padding: 4px 8px;
-      margin-bottom: -4px;
-    }
-    .close-btn:hover { color: #333; }
-  </style>
-
+  <title>AI 마케팅</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <div class="container">
+  <!-- 랜딩 페이지 -->
+  <div id="p-landing">
+    <div class="landing-wrap">
 
-    <h1>네이버 리뷰 수집기</h1>
+      <div class="landing-hero">
+        <h1 class="landing-title">소상공인을 위한<br>AI 마케팅 사이트</h1>
+        <p class="landing-desc">아래 버튼을 누르면 리뷰를 수집할 수 있습니다.</p>
+        <button class="landing-btn" onclick="goReview()">네이버 리뷰 수집기</button>
+        <div class="arrow-down" onclick="scrollDesc()">&#8964;</div>
+      </div>
 
-    <div class="search-box">
-      <input
-        type="text"
-        id="keyword"
-        placeholder="검색어 입력"
-      />
+      <div class="landing-desc-section" id="desc-section">
+        <p class="desc-text">해당 사이트는 소상공인들을 위한 마케팅 사이트입니다. 리뷰를 통한 가게들의 조사를 통한, 마케팅 전략 도출, 마케팅 이미지 제작을 하나의 사이트 안에서 실행하실 수 있습니다.</p>
+        <p class="how-title">사용방법</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">네이버 리뷰 수집기에 들어가 원하는 키워드를 검색하세요</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">리뷰 수집기에 나온 리뷰들을 복사해서 마케팅 전략 챗봇에 그대로 복붙하세요</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">마케팅전략 챗봇에서 나온 비주얼 프롬프트를 그대로 마케팅이미지 챗봇에 복붙하세요</div>
+        </div>
+      </div>
 
-      <button id="searchBtn">
-        검색
-      </button>
     </div>
-
-    <div id="loading" class="loading hidden">
-      수집 중...
-    </div>
-
-    <div id="result"></div>
-
   </div>
 
-<script src="app.js"></script>
+  <!-- 리뷰 수집기 페이지 -->
+  <div id="p-review" class="hidden">
+    <div class="container">
+      <button class="back-btn" onclick="goLanding()">← 돌아가기</button>
+      <h1>네이버 리뷰 수집기</h1>
+      <div class="search-box">
+        <input type="text" id="keyword" placeholder="검색어 입력" />
+        <button id="searchBtn">검색</button>
+      </div>
+      <div id="loading" class="loading hidden">수집 중...</div>
+      <div id="result"></div>
+    </div>
+  </div>
 
-<!-- 챗봇 1 — 왼쪽 하단 -->
-  <div class="chat-widget left" id="widget1">
+  <!-- 챗봇 1 — 마케팅전략 (왼쪽) -->
+  <div class="chat-widget left">
     <button class="close-btn" id="close-btn-1" style="display:none;"
-      onclick="closeChat('chat-frame-1')">✕</button>
+      onclick="closeChat('chat-frame-1', 'close-btn-1')">✕</button>
     <iframe id="chat-frame-1" class="chat-iframe"
       src="https://sgllm.sogang.ac.kr/public/chatbots/condescending-goldstine-jbe"
       allow="microphone"></iframe>
@@ -110,10 +68,10 @@
     </button>
   </div>
 
-  <!-- 챗봇 2 — 오른쪽 하단 -->
-  <div class="chat-widget right" id="widget2">
+  <!-- 챗봇 2 — 마케팅이미지 (오른쪽) -->
+  <div class="chat-widget right">
     <button class="close-btn" id="close-btn-2" style="display:none;"
-      onclick="closeChat('chat-frame-2')">✕</button>
+      onclick="closeChat('chat-frame-2', 'close-btn-2')">✕</button>
     <iframe id="chat-frame-2" class="chat-iframe"
       src="https://sgllm.sogang.ac.kr/public/chatbots/agitated-bhaskara-ucc"
       allow="microphone"></iframe>
@@ -121,11 +79,23 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
-      이미지 생성
+      마케팅이미지
     </button>
   </div>
 
+  <script src="app.js"></script>
   <script>
+    function goReview() {
+      document.getElementById('p-landing').style.display = 'none';
+      document.getElementById('p-review').classList.remove('hidden');
+    }
+    function goLanding() {
+      document.getElementById('p-review').classList.add('hidden');
+      document.getElementById('p-landing').style.display = 'block';
+    }
+    function scrollDesc() {
+      document.getElementById('desc-section').scrollIntoView({ behavior: 'smooth' });
+    }
     function toggleChat(frameId, closeBtnId) {
       const frame = document.getElementById(frameId);
       const closeBtn = document.getElementById(closeBtnId);
@@ -133,16 +103,11 @@
       frame.style.display = isOpen ? 'none' : 'block';
       closeBtn.style.display = isOpen ? 'none' : 'block';
     }
-
-    function closeChat(frameId) {
-      const closeBtnId = frameId === 'chat-frame-1' ? 'close-btn-1' : 'close-btn-2';
+    function closeChat(frameId, closeBtnId) {
       document.getElementById(frameId).style.display = 'none';
       document.getElementById(closeBtnId).style.display = 'none';
     }
   </script>
-
-
- 
 
 </body>
 </html>
